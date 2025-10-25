@@ -1,4 +1,15 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // Announcement elements
+  const announcementBanner = document.getElementById("announcement-banner");
+  const manageAnnouncementsBtn = document.getElementById("manage-announcements-btn");
+  const announcementsModal = document.getElementById("announcements-modal");
+  const closeAnnouncementsModal = document.querySelector(".close-announcements-modal");
+  const announcementsList = document.getElementById("announcements-list");
+  const announcementForm = document.getElementById("announcement-form");
+  const announcementMessageInput = document.getElementById("announcement-message");
+  const announcementExpirationInput = document.getElementById("announcement-expiration");
+  const announcementStartInput = document.getElementById("announcement-start");
+  const announcementIdInput = document.getElementById("announcement-id");
   // DOM elements
   const activitiesList = document.getElementById("activities-list");
   const messageDiv = document.getElementById("message");
@@ -146,16 +157,134 @@ document.addEventListener("DOMContentLoaded", () => {
       loginButton.classList.add("hidden");
       userInfo.classList.remove("hidden");
       displayName.textContent = currentUser.display_name;
+      manageAnnouncementsBtn.classList.remove("hidden");
     } else {
       loginButton.classList.remove("hidden");
       userInfo.classList.add("hidden");
       displayName.textContent = "";
+      manageAnnouncementsBtn.classList.add("hidden");
     }
 
     updateAuthBodyClass();
-    // Refresh the activities to update the UI
     fetchActivities();
+    fetchAnnouncementBanner();
   }
+  // Announcement Banner Logic
+  async function fetchAnnouncementBanner() {
+    try {
+      const response = await fetch("/announcements");
+      const announcements = await response.json();
+      const now = new Date();
+      // Find the first active announcement
+      const active = announcements.find(a => {
+        const start = a.start_date ? new Date(a.start_date) : null;
+        const end = a.expiration_date ? new Date(a.expiration_date) : null;
+        return (!start || now >= start) && end && now <= end;
+      });
+      if (active) {
+        announcementBanner.textContent = `📢 ${active.message}`;
+      } else {
+        announcementBanner.textContent = "";
+      }
+    } catch (e) {
+      announcementBanner.textContent = "";
+    }
+  }
+
+  // Announcements Modal Logic
+  manageAnnouncementsBtn.addEventListener("click", () => {
+    loadAnnouncementsList();
+    announcementsModal.classList.remove("hidden");
+    setTimeout(() => announcementsModal.classList.add("show"), 10);
+  });
+  closeAnnouncementsModal.addEventListener("click", closeAnnouncementsModalHandler);
+  window.addEventListener("click", (event) => {
+    if (event.target === announcementsModal) closeAnnouncementsModalHandler();
+  });
+  function closeAnnouncementsModalHandler() {
+    announcementsModal.classList.remove("show");
+    setTimeout(() => announcementsModal.classList.add("hidden"), 300);
+    announcementForm.reset();
+    announcementIdInput.value = "";
+  }
+
+  async function loadAnnouncementsList() {
+    try {
+      const response = await fetch("/announcements");
+      const announcements = await response.json();
+      announcementsList.innerHTML = "";
+      if (announcements.length === 0) {
+        announcementsList.innerHTML = `<div class='no-results'>No announcements found.</div>`;
+        return;
+      }
+      announcements.forEach(a => {
+        const item = document.createElement("div");
+        item.className = "announcement-item";
+        item.innerHTML = `
+          <span class="announcement-message">${a.message}</span>
+          <span class="announcement-dates">${a.start_date ? `From ${a.start_date}` : ""} ${a.expiration_date ? `Until ${a.expiration_date}` : ""}</span>
+          <span class="announcement-actions">
+            <button class="edit-announcement-btn" data-id="${a._id}">Edit</button>
+            <button class="delete-announcement-btn" data-id="${a._id}">Delete</button>
+          </span>
+        `;
+        item.querySelector(".edit-announcement-btn").addEventListener("click", () => editAnnouncement(a));
+        item.querySelector(".delete-announcement-btn").addEventListener("click", () => deleteAnnouncement(a._id));
+        announcementsList.appendChild(item);
+      });
+    } catch (e) {
+      announcementsList.innerHTML = `<div class='no-results'>Failed to load announcements.</div>`;
+    }
+  }
+
+  function editAnnouncement(a) {
+    announcementMessageInput.value = a.message;
+    announcementExpirationInput.value = a.expiration_date || "";
+    announcementStartInput.value = a.start_date || "";
+    announcementIdInput.value = a._id;
+  }
+
+  async function deleteAnnouncement(id) {
+    if (!confirm("Delete this announcement?")) return;
+    try {
+      const response = await fetch(`/announcements/${id}`, { method: "DELETE", headers: { Authorization: currentUser ? currentUser.username : "" } });
+      if (response.ok) {
+        loadAnnouncementsList();
+        fetchAnnouncementBanner();
+      }
+    } catch (e) {}
+  }
+
+  announcementForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const message = announcementMessageInput.value;
+    const expiration_date = announcementExpirationInput.value;
+    const start_date = announcementStartInput.value;
+    const id = announcementIdInput.value;
+    const payload = { message, expiration_date, start_date };
+    let url = "/announcements/add";
+    let method = "POST";
+    if (id) {
+      url = `/announcements/${id}`;
+      method = "PUT";
+    }
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json", Authorization: currentUser ? currentUser.username : "" },
+        body: JSON.stringify(payload)
+      });
+      if (response.ok) {
+        announcementForm.reset();
+        announcementIdInput.value = "";
+        loadAnnouncementsList();
+        fetchAnnouncementBanner();
+      }
+    } catch (e) {}
+  });
+
+  // Initial load
+  fetchAnnouncementBanner();
 
   // Update body class for CSS targeting
   function updateAuthBodyClass() {

@@ -443,6 +443,92 @@ button {
   line-height: 1;
 }
 
+.close-announcements-modal {
+  position: absolute;
+  right: 12px;
+  top: 8px;
+  font-size: 18px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  line-height: 1;
+}
+
+#manage-announcements-btn {
+  background-color: #1b5e20;
+  color: #fff;
+  border-radius: 20px;
+  padding: 4px 12px;
+  margin-left: 10px;
+  font-size: 0.85rem;
+  transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+#manage-announcements-btn:hover {
+  background-color: #388e3c;
+}
+
+#announcements-modal .modal-content {
+  max-width: 500px;
+}
+
+#announcements-list {
+  margin-bottom: 18px;
+  max-height: 180px;
+  overflow-y: auto;
+  border: 1px solid var(--border-light);
+  border-radius: 5px;
+  background: var(--background);
+  padding: 10px;
+}
+
+.announcement-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.announcement-item:last-child {
+  border-bottom: none;
+}
+.announcement-message {
+  flex: 1;
+  font-size: 0.95em;
+  color: var(--primary);
+}
+.announcement-dates {
+  font-size: 0.8em;
+  color: var(--text-secondary);
+  margin-left: 10px;
+}
+.announcement-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: 10px;
+}
+.edit-announcement-btn,
+.delete-announcement-btn {
+  background: var(--primary-light);
+  color: #fff;
+  border-radius: 15px;
+  padding: 2px 8px;
+  font-size: 0.8em;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.edit-announcement-btn:hover {
+  background: #7b1fa2;
+}
+.delete-announcement-btn {
+  background: #c62828;
+}
+.delete-announcement-btn:hover {
+  background: #b71c1c;
+}
+
 /* Login modal specific styling */
 #login-modal .modal-content h3 {
   color: var(--primary);

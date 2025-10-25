@@ -10,6 +10,7 @@ client = MongoClient('mongodb://localhost:27017/')
 db = client['mergington_high']
 activities_collection = db['activities']
 teachers_collection = db['teachers']
+announcements_collection = db['announcements']
 
 # Methods
 
@@ -36,6 +37,7 @@ def verify_password(hashed_password: str, plain_password: str) -> bool:
         return False
 
 
+
 def init_database():
     """Initialize database if empty"""
 
@@ -47,11 +49,21 @@ def init_database():
     # Initialize teacher accounts if empty
     if teachers_collection.count_documents({}) == 0:
         for teacher in initial_teachers:
-            teachers_collection.insert_one(
-                {"_id": teacher["username"], **teacher})
+            teachers_collection.insert_one({"_id": teacher["username"], **teacher})
+
+    # Initialize announcements if empty
+    if announcements_collection.count_documents({}) == 0:
+        for announcement in initial_announcements:
+            announcements_collection.insert_one(announcement)
 
 
-# Initial database if empty
+initial_announcements = [
+    {
+        "message": "Welcome to Mergington High! School will be closed on October 31st for Halloween.",
+        "expiration_date": "2025-11-01",
+        "start_date": "2025-10-25"
+    }
+]
 initial_activities = {
     "Chess Club": {
         "description": "Learn strategies and compete in chess tournaments",
