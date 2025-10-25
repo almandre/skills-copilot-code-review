@@ -12,8 +12,8 @@
     />
   </head>
   <body>
-    <aside class="announcement-banner" role="region" aria-label="Announcement" aria-live="polite">
-      📢 Activity registration is open until the end of the month. Don't lose your spot!
+    <aside class="announcement-banner" role="region" aria-label="Announcement" aria-live="polite" id="announcement-banner">
+      <!-- Announcement will be loaded dynamically -->
     </aside>
     <header>
       <h1>Mergington High School</h1>
@@ -27,6 +27,10 @@
           <div id="user-info" class="hidden">
             <span id="display-name"></span>
             <button id="logout-button">Logout</button>
+            <button id="manage-announcements-btn" class="icon-button hidden">
+              <span class="user-icon">📣</span>
+              <span>Manage Announcements</span>
+            </button>
           </div>
         </div>
       </div>
@@ -137,6 +141,32 @@
       </div>
     </div>
 
+    <!-- Announcements Management Modal -->
+    <div id="announcements-modal" class="modal hidden">
+      <div class="modal-content">
+        <span class="close-announcements-modal">&times;</span>
+        <h3>Manage Announcements</h3>
+        <div id="announcements-list">
+          <!-- Announcements will be listed here -->
+        </div>
+        <form id="announcement-form">
+          <div class="form-group">
+            <label for="announcement-message">Message:</label>
+            <input type="text" id="announcement-message" required placeholder="Announcement message" />
+          </div>
+          <div class="form-group">
+            <label for="announcement-expiration">Expiration Date:</label>
+            <input type="date" id="announcement-expiration" required />
+          </div>
+          <div class="form-group">
+            <label for="announcement-start">Start Date (optional):</label>
+            <input type="date" id="announcement-start" />
+          </div>
+          <input type="hidden" id="announcement-id" value="" />
+          <button type="submit" id="save-announcement-btn">Save Announcement</button>
+        </form>
+      </div>
+    </div>
     <script src="app.js"></script>
   </body>
 </html>
